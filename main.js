@@ -93,8 +93,9 @@ function redraw() {
 	let height = control("height");
 	let nblades = control("nblades");
 	let nsegments = control("nsegments");
-	let spread = control("spread");
 	let bladeWidth = new Range(control("bladewidthmin"), control("bladewidthmax"));
+	let spread = control("spread");
+	let clearedge = control("clearedge");
 	let huespread = control("huespread");
 	let saturationspread = control("saturationspread");
 	let lightnessspread = control("lightnessspread");
@@ -109,7 +110,7 @@ function redraw() {
 
 	for (let i = 0; i < nblades; ++i){
 		let base = {
-			x: sample_range(0.1, 0.9, random()) * width,
+			x: sample_range(clearedge, 1-clearedge, random()) * width,
 			y: 0,
 			w: bladeWidth.sample(random())
 		};
