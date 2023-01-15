@@ -52,32 +52,36 @@ class HslColor {
 
 	static hexmatcher = /^\#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
 
-	constructor(hsl) {
+	constructor(hsl, alpha) {
+		if (alpha === undefined) {
+			alpha = 1;
+		}
+		this.alpha = alpha;
 		this.hsl = hsl;
 	}
 
-	static fromRgbHex(hex){
+	static fromRgbHex(hex, alpha){
 		let match = this.hexmatcher.exec(hex);
 		let r = parseInt(match[1], 16);
 		let g = parseInt(match[2], 16);
 		let b = parseInt(match[3], 16);
 		let hsl = rgbToHsl(r, g, b);
-		return new HslColor(hsl);
+		return new HslColor(hsl, alpha);
 	}
 
-	modify(hdiff, sdiff, vdiff){
+	modify(hdiff, sdiff, ldiff){
 		let hue = this.hsl[0] + hdiff;
 		hue -= Math.floor(hue);
 		return new HslColor([
 			hue,
 			clamp(this.hsl[1] + sdiff, 0, 1),
-			clamp(this.hsl[2] + vdiff, 0, 1)
-		])
+			clamp(this.hsl[2] + ldiff, 0, 1)
+		], this.alpha);
 	}
 
-	toRgbString(){
-		let [r, g, b] = hslToRgb(this.hsl[0], this.hsl[1], this.hsl[2]);
-		return `rgb(${r}, ${g}, ${b})`;
+	toString(){
+		let [h, s, l] = this.hsl;
+		return `hsl(${h}turn ${s*100}% ${l*100}% / ${this.alpha})`;
 	}
 }
 
@@ -100,7 +104,7 @@ function redraw() {
 	let saturationspread = control("saturationspread");
 	let lightnessspread = control("lightnessspread");
 	let baseColorHex = document.getElementById("basecolor").value;
-	let baseColor = HslColor.fromRgbHex(baseColorHex);
+	let baseColor = HslColor.fromRgbHex(baseColorHex, control("coloralpha"));
 
 	let random = Rng(seed);
 	let canvas = document.getElementById("canvas");
@@ -129,7 +133,7 @@ function redraw() {
 			sample_range(-saturationspread, saturationspread, random()),
 			sample_range(-lightnessspread, lightnessspread, random())
 		);
-		ctx.fillStyle = color.toRgbString();
+		ctx.fillStyle = color.toString();
 		ctx.beginPath();
 		ctx.moveTo(base.x - base.w, height - base.y);
 		for (let p = 1; p < nsegments * 2 + 1; ++p) {
