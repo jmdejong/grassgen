@@ -48,12 +48,12 @@ function clamp(v, lower, upper) {
 	return Math.min(upper, Math.max(v, lower));
 }
 
-class HsvColor {
+class HslColor {
 
 	static hexmatcher = /^\#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
 
-	constructor(hsv) {
-		this.hsv = hsv;
+	constructor(hsl) {
+		this.hsl = hsl;
 	}
 
 	static fromRgbHex(hex){
@@ -61,22 +61,22 @@ class HsvColor {
 		let r = parseInt(match[1], 16);
 		let g = parseInt(match[2], 16);
 		let b = parseInt(match[3], 16);
-		let hsv = rgbToHsv(r, g, b);
-		return new HsvColor(hsv);
+		let hsl = rgbToHsl(r, g, b);
+		return new HslColor(hsl);
 	}
 
 	modify(hdiff, sdiff, vdiff){
-		let hue = this.hsv[0] + hdiff;
+		let hue = this.hsl[0] + hdiff;
 		hue -= Math.floor(hue);
-		return new HsvColor([
+		return new HslColor([
 			hue,
-			clamp(this.hsv[1] + sdiff, 0, 1),
-			clamp(this.hsv[2] + vdiff, 0, 1)
+			clamp(this.hsl[1] + sdiff, 0, 1),
+			clamp(this.hsl[2] + vdiff, 0, 1)
 		])
 	}
 
 	toRgbString(){
-		let [r, g, b] = hsvToRgb(this.hsv[0], this.hsv[1], this.hsv[2]);
+		let [r, g, b] = hslToRgb(this.hsl[0], this.hsl[1], this.hsl[2]);
 		return `rgb(${r}, ${g}, ${b})`;
 	}
 }
@@ -97,9 +97,9 @@ function redraw() {
 	let bladeWidth = new Range(control("bladewidthmin"), control("bladewidthmax"));
 	let huespread = control("huespread");
 	let saturationspread = control("saturationspread");
-	let valuespread = control("valuespread");
+	let lightnessspread = control("lightnessspread");
 	let baseColorHex = document.getElementById("basecolor").value;
-	let baseColor = HsvColor.fromRgbHex(baseColorHex);
+	let baseColor = HslColor.fromRgbHex(baseColorHex);
 
 	let random = Rng(seed);
 	let canvas = document.getElementById("canvas");
@@ -126,7 +126,7 @@ function redraw() {
 		let color = baseColor.modify(
 			sample_range(-huespread, huespread, random()),
 			sample_range(-saturationspread, saturationspread, random()),
-			sample_range(-valuespread, valuespread, random())
+			sample_range(-lightnessspread, lightnessspread, random())
 		);
 		ctx.fillStyle = color.toRgbString();
 		ctx.beginPath();
