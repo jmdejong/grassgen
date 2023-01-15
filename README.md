@@ -2,6 +2,10 @@
 
 Generate grass blades to use in a game.
 
+[troido.nl/grassgen/](https://troido.nl/grassgen/)
+
+![usage screenshot](grassgen_usage.png)
+
 ## Contributing
 
 Help with the page layout/style is greatly appreciated.
